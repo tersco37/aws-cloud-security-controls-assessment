@@ -40,32 +40,34 @@ graph TD
     classDef datStyle fill:#99ff99,stroke:#16a34a,stroke-width:2px,color:#000;
     classDef logStyle fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#000;
 
-    subgraph AWS_Account ["AWS Account Boundary"]
+    subgraph AWS ["AWS Account"]
         
-        subgraph IAM_Domain ["Identity & Access Management (IAM)"]
-            Root["Root Account (MFA Enforced)"]:::rootStyle
-            AdminUser["IAM Admin User: terrance-admin (MFA Enforced)"]:::iamStyle
+        subgraph IAM ["IAM Domain"]
+            Root["Root Account - MFA Enforced"]:::rootStyle
+            AdminUser["IAM Admin - terrance-admin"]:::iamStyle
         end
 
-        subgraph Network_Domain ["Network Security (EC2 / VPC)"]
-            SG["Security Group (NET-01)<br/>• Block: Port 22 (SSH) & 3389 (RDP)<br/>• Allow: Port 80 (HTTP) & 443 (HTTPS)"]:::netStyle
+        subgraph Network ["Network and Edge"]
+            SG["Security Group NET-01"]:::netStyle
+            CloudFront["CloudFront Distribution - OAC"]:::netStyle
         end
 
-        subgraph Data_Domain ["Storage Security (S3)"]
-            S3Bucket["Portfolio S3 Bucket (DAT-01)<br/>• Block All Public Access<br/>• SSE-S3 AES-256 Encryption"]:::datStyle
+        subgraph Data ["Storage Domain"]
+            S3Bucket["Portfolio Bucket DAT-01"]:::datStyle
         end
 
-        subgraph Audit_Domain ["Logging & Monitoring"]
-            CloudTrail["AWS CloudTrail: sec-baseline-cloudtrail (LOG-01)<br/>• Multi-Region Enabled<br/>• Management Events Captured"]:::logStyle
-            TrailS3["CloudTrail Log Storage Bucket"]:::logStyle
+        subgraph Audit ["Logging Domain"]
+            CloudTrail["AWS CloudTrail LOG-01"]:::logStyle
+            LogsBucket["Logs Bucket terrance-logs-portfolio-bucket"]:::logStyle
         end
 
     end
 
-    %% Relationships
-    AdminUser -->|Administer Controls| SG
-    AdminUser -->|Manage Storage| S3Bucket
-    CloudTrail -->|Store Management API Logs| TrailS3
+    AdminUser --> SG
+    AdminUser --> S3Bucket
+    CloudFront --> S3Bucket
+    S3Bucket --> LogsBucket
+    CloudTrail --> LogsBucket
 ```
 
 ---
