@@ -31,7 +31,42 @@ Comprehensive evidence files, testing methodologies, and verification logs are m
 ---
 
 ## Architecture Overview
-*(Architecture Diagram placeholder — To be added in next phase)*
+```mermaid
+graph TD
+    %% Styling
+    classDef rootStyle fill:#ff9999,stroke:#cc0000,stroke-width:2px,color:#000;
+    classDef iamStyle fill:#ffcc99,stroke:#d97706,stroke-width:2px,color:#000;
+    classDef netStyle fill:#99ccff,stroke:#2563eb,stroke-width:2px,color:#000;
+    classDef datStyle fill:#99ff99,stroke:#16a34a,stroke-width:2px,color:#000;
+    classDef logStyle fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#000;
+
+    subgraph AWS_Account ["AWS Account Boundary"]
+        
+        subgraph IAM_Domain ["Identity & Access Management (IAM)"]
+            Root["Root Account (MFA Enforced)"]:::rootStyle
+            AdminUser["IAM Admin User: terrance-admin (MFA Enforced)"]:::iamStyle
+        end
+
+        subgraph Network_Domain ["Network Security (EC2 / VPC)"]
+            SG["Security Group (NET-01)<br/>• Block: Port 22 (SSH) & 3389 (RDP)<br/>• Allow: Port 80 (HTTP) & 443 (HTTPS)"]:::netStyle
+        end
+
+        subgraph Data_Domain ["Storage Security (S3)"]
+            S3Bucket["Portfolio S3 Bucket (DAT-01)<br/>• Block All Public Access<br/>• SSE-S3 AES-256 Encryption"]:::datStyle
+        end
+
+        subgraph Audit_Domain ["Logging & Monitoring"]
+            CloudTrail["AWS CloudTrail: sec-baseline-cloudtrail (LOG-01)<br/>• Multi-Region Enabled<br/>• Management Events Captured"]:::logStyle
+            TrailS3["CloudTrail Log Storage Bucket"]:::logStyle
+        end
+
+    end
+
+    %% Relationships
+    AdminUser -->|Administer Controls| SG
+    AdminUser -->|Manage Storage| S3Bucket
+    CloudTrail -->|Store Management API Logs| TrailS3
+```
 
 ---
 
